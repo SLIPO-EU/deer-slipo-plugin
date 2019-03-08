@@ -1,6 +1,6 @@
 @prefix : <urn:example:slipo-bucharest/v1/> .
-@prefix fcage: <http://ns.aksw.org/faraday_cage/#> .
-@prefix deer: <http://deer.aksw.org/vocabulary/#> .
+@prefix fcage: <http://w3id.org/fcage/> .
+@prefix deer: <http://w3id.org/deer/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
 @prefix geos: <http://www.opengis.net/ont/geosparql#> .
@@ -18,7 +18,7 @@
   a deer:SparqlAnalyticsWrapper ;
   deer:sparqlSelectQuery
     '''
-      PREFIX deer: <http://deer.aksw.org/vocabulary/#>
+      PREFIX deer: <http://w3id.org/deer/>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       PREFIX slipo: <http://slipo.eu/def#>
       SELECT ?inCount ?triplesPerInPOI ?outCount ?triplesPerOutPOI
