@@ -68,8 +68,9 @@
       }
     ''' ;
 .
+:poiStats a slipo:SlipoAnalyticsWrapper .
 
-fcage:ExecutionNode fcage:decoratedBy :countPOIs .
+fcage:ExecutionNode fcage:decoratedBy :poiStats .
 
 ####
 # Input Nodes
