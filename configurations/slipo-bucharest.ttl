@@ -309,7 +309,48 @@ fcage:ExecutionNode fcage:decoratedBy :poiStats .
 :mergeFull
   a deer:MergeEnrichmentOperator ;
   fcage:hasInput ( :fullInput :dereferencing ) ;
+  fcage:hasOutput ( :importDbpNames ) ;
+.
+
+:importDbpNames
+  a deer:SparqlUpdateEnrichmentOperator ;
+  fcage:hasOutput ( :cleanUpIntermediateTriples ) ;
+  deer:sparqlUpdateQuery '''
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    PREFIX slipo: <http://slipo.eu/def#>
+    DELETE {
+      ?s rdfs:label ?o .
+    }
+    INSERT {
+      ?s slipo:name ?node .
+      ?node slipo:nameValue ?l .
+      ?node slipo:nameType "label from dbpedia" .
+    }
+    WHERE {
+      ?s rdfs:label ?o .
+      ?s owl:sameAs ?d .
+      ?d rdfs:label ?l .
+      BIND (URI(CONCAT(STR(?s), "/dbp_name-", strUUID())) AS ?node)
+    }
+  ''' ;
+.
+
+:cleanUpIntermediateTriples
+  a deer:SparqlUpdateEnrichmentOperator ;
   fcage:hasOutput ( :output_node ) ;
+  deer:sparqlUpdateQuery '''
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+    DELETE {
+      ?s rdfs:label ?o .
+      ?s geo:geometry ?y .
+    }
+    WHERE {
+      ?s rdfs:label ?o .
+      ?s geo:geometry ?y .
+    }
+  ''' ;
 .
 
 ####
