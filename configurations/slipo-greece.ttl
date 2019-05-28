@@ -14,9 +14,7 @@
 # Decorators
 ####
 
-:poiStats a slipo:SlipoAnalyticsWrapper .
-
-fcage:ExecutionNode fcage:decoratedBy :poiStats .
+fcage:ExecutionNode fcage:decoratedBy [ a slipo:SlipoAnalyticsWrapper ] .
 
 ####
 # Input Nodes
@@ -24,11 +22,11 @@ fcage:ExecutionNode fcage:decoratedBy :poiStats .
 
 :fullInput
   a deer:FileModelReader ;
-  deer:fromPath "fused.nt" ;
-  fcage:hasOutput ( :malls :non_malls :mergeFull ) ;
+  deer:fromPath "../fused/output/b1_fused.nt" ;
+  fcage:hasOutput ( :filtered :mergeFull ) ;
 .
 
-:malls
+:filtered
   a deer:FilterEnrichmentOperator ;
   deer:sparqlConstructQuery
     '''
@@ -37,79 +35,13 @@ fcage:ExecutionNode fcage:decoratedBy :poiStats .
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       PREFIX slipo: <http://slipo.eu/def#>
       CONSTRUCT {?s rdfs:label ?x . ?s geo:lat ?lat . ?s geo:long ?long . ?s geo:geometry ?geometry . } WHERE {
-       {
          ?s geo:long ?long .
          ?s geo:lat ?lat .
          ?s geos:hasGeometry/geos:asWKT ?geometry .
          ?s slipo:name/slipo:nameValue ?x .
-         FILTER regex(str(?x),'Mall')
-       } UNION {
-         ?s geo:long ?long .
-         ?s geo:lat ?lat .
-         ?s geos:hasGeometry/geos:asWKT ?geometry .
-         ?s slipo:name/slipo:nameValue ?x .
-         ?s slipo:category/slipo:value ?y.
-         FILTER regex(str(?y),'Shopping Center')
-       }
       }
     ''' ;
-  fcage:hasOutput ( :linkMalls ) ;
-.
-
-:non_malls
-  a deer:FilterEnrichmentOperator ;
-  deer:sparqlConstructQuery
-    '''
-      PREFIX geos: <http://www.opengis.net/ont/geosparql#>
-      PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      PREFIX slipo: <http://slipo.eu/def#>
-      CONSTRUCT {
-        ?s rdfs:label ?x .
-        ?s geo:lat ?lat .
-        ?s geo:long ?long .
-        ?s geo:geometry ?geometry .
-      } WHERE {
-        ?s geo:long ?long .
-        ?s geo:lat ?lat .
-        ?s geos:hasGeometry/geos:asWKT ?geometry .
-        ?s slipo:name/slipo:nameValue ?x .
-        FILTER regex(str(?x), '^((?!Mall).)*$') .
-        OPTIONAL { ?s slipo:category/slipo:value ?y .
-        FILTER regex(str(?y), '^((?!Shopping Center).)*$') . }
-      }
-    ''' ;
-  fcage:hasOutput ( :linkNonMalls ) ;
-.
-
-:dbp_malls
-  a deer:SparqlModelReader ;
-  deer:fromEndpoint <http://dbpedia.org/sparql> ;
-  deer:useSparqlConstruct
-    '''
-      PREFIX geos: <http://www.opengis.net/ont/geosparql#>
-      PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      PREFIX slipo: <http://slipo.eu/def#>
-      PREFIX dbo: <http://dbpedia.org/ontology/>
-      PREFIX dbr: <http://dbpedia.org/resource/>
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      construct {
-        ?mall rdfs:label ?label .
-        ?mall geo:lat ?lat .
-        ?mall geo:long ?long .
-        ?mall geo:geometry ?geometry .
-      } where {
-        ?mall rdf:type dbo:ShoppingMall .
-        ?mall dbo:location dbr:Bucharest .
-        ?mall rdfs:label ?label .
-        ?mall geo:lat ?lat .
-        ?mall geo:long ?long .
-        ?mall geo:geometry ?geometry .
-      }
-      LIMIT 10000
-    ''' ;
-  fcage:hasOutput ( :linkMalls :linkNonMalls ) ;
+  fcage:hasOutput ( :linkBuildings ) ;
 .
 
 :dbp_buildings
@@ -117,76 +49,53 @@ fcage:ExecutionNode fcage:decoratedBy :poiStats .
   deer:fromEndpoint <http://dbpedia.org/sparql> ;
   deer:useSparqlConstruct
     '''
-      PREFIX geos: <http://www.opengis.net/ont/geosparql#>
-      PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+      PREFIX bif: <http://www.openlinksw.com/schemas/bif#>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      PREFIX slipo: <http://slipo.eu/def#>
       PREFIX dbo: <http://dbpedia.org/ontology/>
-      PREFIX dbr: <http://dbpedia.org/resource/>
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      construct {
-        ?building rdfs:label ?label .
-        ?building geo:lat ?lat .
-        ?building geo:long ?long .
-        ?building geo:geometry ?geometry .
-      } where {
-        ?building rdf:type dbo:Building .
-        ?building dbo:location dbr:Bucharest .
-        ?building rdfs:label ?label .
-        ?building geo:lat ?lat .
-        ?building geo:long ?long .
-        ?building geo:geometry ?geometry .
-        FILTER NOT EXISTS { ?building rdf:type dbo:ShoppingMall . }
+      PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+      CONSTRUCT {
+        ?s a ?type .
+        ?s rdfs:label ?label .
+        ?s geo:lat ?lat .
+        ?s geo:long ?long .
+        ?s geo:geometry ?geometry .
+      } WHERE {
+        ?s a/rdfs:subClassOf* dbo:Building .
+        ?s a ?type .
+        ?s rdfs:label ?label .
+        ?s geo:lat ?lat .
+        ?s geo:long ?long .
+        ?s geo:geometry ?geometry .
+        {
+          SELECT *
+          WHERE {
+            ?s geo:geometry ?geometry .
+            FILTER(bif:isgeometry(?geometry)).
+            FILTER(bif:st_within(?geometry ,
+              "POLYGON((20.518942614901434 40.23535586695181,26.83246341948652 40.76876130334341,29.989223821779035 34.09230477228964,18.063684524229476 34.38227526935741,20.518942614901434 40.23535586695181))"^^<http://www.openlinksw.com/schemas/virtrdf#Geometry>))
+          }
+        }
+        UNION
+        {
+          {
+            ?s geo:lat ?lat .
+            ?s geo:long ?long .
+            FILTER(bif:st_within(bif:st_point(?long , ?lat) ,
+            "POLYGON((20.518942614901434 40.23535586695181,26.83246341948652 40.76876130334341,29.989223821779035 34.09230477228964,18.063684524229476 34.38227526935741,20.518942614901434 40.23535586695181))"^^<http://www.openlinksw.com/schemas/virtrdf#Geometry>))
+          }
+        }
       }
-      LIMIT 10000
     ''' ;
   fcage:hasOutput ( :linkBuildings );
 .
 
-####
-# Enrichment Nodes
-####
-
-:linkMalls
-  a deer:LinkingEnrichmentOperator ;
-  fcage:hasInput ( :malls :dbp_malls ) ;
-  fcage:hasOutput ( :mergeLinks ) ;
-  deer:selectMode "best1toN" ;
-  deer:linkingPredicate owl:sameAs ;
-  deer:linkSpecification "mongeelkan(y.http://www.w3.org/2000/01/rdf-schema#label, x.http://www.w3.org/2000/01/rdf-schema#label)" ;
-  deer:threshold 0.3 ;
-.
-
-:linkNonMalls
-  a deer:LinkingEnrichmentOperator ;
-  fcage:hasInput ( :non_malls :dbp_malls ) ;
-  fcage:hasOutput ( :distanceToMalls ) ;
-  deer:selectMode "best1toN" ;
-  deer:linkingPredicate slipo:nearestMall ;
-  deer:linkSpecification "geo_hausdorff(x.http://www.w3.org/2003/01/geo/wgs84_pos#geometry,y.http://www.w3.org/2003/01/geo/wgs84_pos#geometry)" ;
-  deer:threshold 0.333 ;
-.
-
-:distanceToMalls
-  a deer:GeoDistanceEnrichmentOperator ;
-  fcage:hasOutput ( :mergeLinks ) ;
-  deer:selectPredicate slipo:nearestMall ;
-  deer:distancePredicate slipo:distanceToNearestMall ;
-.
-
-:mergeLinks
-  a deer:MergeEnrichmentOperator ;
-  fcage:hasInput ( :linkMalls :distanceToMalls ) ;
-  fcage:hasOutput ( :linkBuildings ) ;
-.
-
 :linkBuildings
   a deer:LinkingEnrichmentOperator ;
-  fcage:hasInput ( :mergeLinks :dbp_buildings ) ;
+  fcage:hasInput ( :filtered :dbp_buildings ) ;
   fcage:hasOutput ( :distanceToBuildings ) ;
   deer:selectMode "best1toN" ;
   deer:linkingPredicate slipo:nearestBuilding ;
-  deer:linkSpecification "geo_hausdorff(x.http://www.w3.org/2003/01/geo/wgs84_pos#geometry,y.http://www.w3.org/2003/01/geo/wgs84_pos#geometry)" ;
+  deer:linkSpecification "geo_hausdorff(x.http://www.w3.org/2003/01/geo/wgs84_pos#geometry, y.http://www.w3.org/2003/01/geo/wgs84_pos#geometry)" ;
   deer:threshold 0.333 ;
 .
 
@@ -305,6 +214,6 @@ fcage:ExecutionNode fcage:decoratedBy :poiStats .
 
 :output_node
   a deer:FileModelWriter ;
-  deer:outputFile "slipo-bucharest-enriched.ttl" ;
+  deer:outputFile "output/b1_enriched.nt" ;
   deer:outputFormat "NT" ;
 .
