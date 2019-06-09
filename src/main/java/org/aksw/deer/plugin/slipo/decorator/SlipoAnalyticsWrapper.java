@@ -30,7 +30,7 @@ public class SlipoAnalyticsWrapper extends AbstractDeerExecutionNodeWrapper {
 
   private static final Logger logger = LoggerFactory.getLogger(SparqlAnalyticsWrapper.class);
 
-  private void addStats(List<Model> in, String key, Resource id) {
+  private void addStats(@NotNull List<Model> in, String key, @NotNull Resource id) {
     final Property category = ResourceFactory.createProperty(SLIPO_NS + "category");
     final List<Double> triples = new ArrayList<>(in.size());
     final List<Long> pois = new ArrayList<>(in.size());
@@ -50,6 +50,7 @@ public class SlipoAnalyticsWrapper extends AbstractDeerExecutionNodeWrapper {
     DeerAnalyticsStore.write(FaradayCageContext.getRunId(), id, stats);
   }
 
+  @NotNull
   @Override
   public DeerExecutionNode wrap(DeerExecutionNode executionNode) {
     if (executionNode instanceof Parameterized) {
@@ -65,7 +66,7 @@ public class SlipoAnalyticsWrapper extends AbstractDeerExecutionNodeWrapper {
       super(other);
     }
 
-    public List<Model> apply(List<Model> in) {
+    public List<Model> apply(@NotNull List<Model> in) {
       List<Model> out = super.apply(in);
       addStats(in, "input", getId());
       addStats(out, "output", getId());
@@ -80,7 +81,7 @@ public class SlipoAnalyticsWrapper extends AbstractDeerExecutionNodeWrapper {
       super(other);
     }
 
-    public List<Model> apply(List<Model> in) {
+    public List<Model> apply(@NotNull List<Model> in) {
       List<Model> out = super.apply(in);
       if (in.size() > 0) {
         addStats(in, "input", getId());

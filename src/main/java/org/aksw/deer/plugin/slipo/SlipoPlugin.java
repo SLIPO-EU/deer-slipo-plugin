@@ -1,5 +1,6 @@
 package org.aksw.deer.plugin.slipo;
 
+import org.jetbrains.annotations.NotNull;
 import org.pf4j.Plugin;
 import org.pf4j.PluginWrapper;
 import org.slf4j.Logger;
@@ -9,7 +10,7 @@ public class SlipoPlugin extends Plugin {
 
     private static final Logger logger = LoggerFactory.getLogger(SlipoPlugin.class);
 
-    public SlipoPlugin(PluginWrapper wrapper) {
+    public SlipoPlugin(@NotNull PluginWrapper wrapper) {
         super(wrapper);
     }
 
