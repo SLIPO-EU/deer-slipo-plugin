@@ -11,7 +11,6 @@ import org.aksw.faraday_cage.engine.ExecutionNode;
 import org.aksw.faraday_cage.engine.FaradayCageContext;
 import org.aksw.faraday_cage.engine.Parameterized;
 import org.apache.jena.rdf.model.*;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.slf4j.Logger;
@@ -30,7 +29,7 @@ public class SlipoAnalyticsWrapper extends AbstractDeerExecutionNodeWrapper {
 
   private static final Logger logger = LoggerFactory.getLogger(SparqlAnalyticsWrapper.class);
 
-  private void addStats(@NotNull List<Model> in, String key, @NotNull Resource id) {
+  private void addStats(List<Model> in, String key, Resource id) {
     final Property category = ResourceFactory.createProperty(SLIPO_NS + "category");
     final List<Double> triples = new ArrayList<>(in.size());
     final List<Long> pois = new ArrayList<>(in.size());
@@ -50,7 +49,6 @@ public class SlipoAnalyticsWrapper extends AbstractDeerExecutionNodeWrapper {
     DeerAnalyticsStore.write(FaradayCageContext.getRunId(), id, stats);
   }
 
-  @NotNull
   @Override
   public DeerExecutionNode wrap(DeerExecutionNode executionNode) {
     if (executionNode instanceof Parameterized) {
@@ -66,7 +64,7 @@ public class SlipoAnalyticsWrapper extends AbstractDeerExecutionNodeWrapper {
       super(other);
     }
 
-    public List<Model> apply(@NotNull List<Model> in) {
+    public List<Model> apply(List<Model> in) {
       List<Model> out = super.apply(in);
       addStats(in, "input", getId());
       addStats(out, "output", getId());
@@ -81,7 +79,7 @@ public class SlipoAnalyticsWrapper extends AbstractDeerExecutionNodeWrapper {
       super(other);
     }
 
-    public List<Model> apply(@NotNull List<Model> in) {
+    public List<Model> apply(List<Model> in) {
       List<Model> out = super.apply(in);
       if (in.size() > 0) {
         addStats(in, "input", getId());
@@ -94,7 +92,6 @@ public class SlipoAnalyticsWrapper extends AbstractDeerExecutionNodeWrapper {
 
   }
 
-  @NotNull
   @Override
   public Resource getType() {
     return ResourceFactory.createResource(SLIPO_NS + this.getClass().getSimpleName());
