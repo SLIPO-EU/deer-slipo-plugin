@@ -34,12 +34,13 @@ fcage:ExecutionNode fcage:decoratedBy [ a slipo:SlipoAnalyticsWrapper ] .
       PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       PREFIX slipo: <http://slipo.eu/def#>
-      CONSTRUCT {?s rdfs:label ?x . ?s geo:lat ?lat . ?s geo:long ?long . ?s geo:geometry ?geometry . } WHERE {
+      CONSTRUCT {?s rdfs:label ?x . ?s geo:lat ?lat . ?s geo:long ?long . ?s geo:geometry ?geometry . ?s slipo:category ?category .} WHERE {
        {
          ?s geo:long ?long .
          ?s geo:lat ?lat .
          ?s geos:hasGeometry/geos:asWKT ?geometry .
          ?s slipo:name/slipo:nameValue ?x .
+         ?s slipo:category ?category .
          FILTER regex(str(?x),'Mall')
        } UNION {
          ?s geo:long ?long .
@@ -47,6 +48,7 @@ fcage:ExecutionNode fcage:decoratedBy [ a slipo:SlipoAnalyticsWrapper ] .
          ?s geos:hasGeometry/geos:asWKT ?geometry .
          ?s slipo:name/slipo:nameValue ?x .
          ?s slipo:category/slipo:value ?y.
+         ?s slipo:category ?category .
          FILTER regex(str(?y),'Shopping Center')
        }
       }
@@ -68,11 +70,13 @@ fcage:ExecutionNode fcage:decoratedBy [ a slipo:SlipoAnalyticsWrapper ] .
         ?s geo:lat ?lat .
         ?s geo:long ?long .
         ?s geo:geometry ?geometry .
+        ?s slipo:category ?category .
       } WHERE {
         ?s geo:long ?long .
         ?s geo:lat ?lat .
         ?s geos:hasGeometry/geos:asWKT ?geometry .
         ?s slipo:name/slipo:nameValue ?x .
+        ?s slipo:category ?category .
         FILTER regex(str(?x), '^((?!Mall).)*$') .
         OPTIONAL { ?s slipo:category/slipo:value ?y .
         FILTER regex(str(?y), '^((?!Shopping Center).)*$') . }
