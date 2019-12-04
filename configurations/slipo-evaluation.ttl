@@ -1,4 +1,4 @@
-@prefix : <urn:example:slipo-greece/v1/> .
+@prefix : <urn:example:slipo-evaluation/v1/> .
 @prefix fcage: <http://w3id.org/fcage/> .
 @prefix deer: <http://w3id.org/deer/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -182,3 +182,4 @@ fcage:ExecutionNode fcage:decoratedBy [
   deer:outputFile "%OUTPUT%" ;
   deer:outputFormat "NT" ;
 .
+

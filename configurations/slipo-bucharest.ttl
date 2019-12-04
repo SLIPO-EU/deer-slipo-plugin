@@ -14,7 +14,10 @@
 # Decorators
 ####
 
-fcage:ExecutionNode fcage:decoratedBy [ a slipo:SlipoAnalyticsWrapper ] .
+fcage:ExecutionNode fcage:decoratedBy [
+    a slipo:SlipoAnalyticsWrapper ;
+    slipo:globalInputId :fullInput ;
+    slipo:globalOutputId :output_node  ] .
 
 ####
 # Input Nodes
