@@ -48,7 +48,10 @@ public class SlipoAnalyticsWrapper extends AbstractParameterizedDeerExecutionNod
   private void addGlobalOut(Model out) {
     Model in = inputPerJob.get(FaradayCageContext.getRunId());
 
-    Set<Resource> inPOIs = in.listStatements(null, category, (RDFNode) null).mapWith(Statement::getSubject).toSet();
+    Set<Resource> inPOIs = in.listStatements(null, category, (RDFNode) null)
+      .mapWith(Statement::getSubject)
+      .filterKeep(r -> r.hasProperty(in.createProperty(SLIPO_NS + "category")))
+      .toSet();
     long avgDiff = 0;
     long maxDiff = 0;
     long enrichedPOIs = 0;
